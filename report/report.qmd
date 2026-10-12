@@ -20,20 +20,45 @@ de       <- read.csv(here("results/tables/DE_amlodipine_vs_control.csv"))
 hallmark <- read.csv(here("results/tables/GSEA_Hallmark.csv"))
 ppp      <- read.csv(here("results/tables/GSEA_PPP_branches.csv"))
 
-n_up   <- sum(de$diffexpressed == "Upregulated")
-n_down <- sum(de$diffexpressed == "Downregulated")
-tkt    <- de[which(de$symbol == "TKT"), ]
-fig    <- function(name) here("results/figures", name)
+n_up    <- sum(de$diffexpressed == "Upregulated")
+n_down  <- sum(de$diffexpressed == "Downregulated")
+tkt     <- de[which(de$symbol == "TKT"), ]
+ppp_non <- ppp[ppp$ID == "PPP_nonoxidative", ]
+ppp_ox  <- ppp[ppp$ID == "PPP_oxidative", ]
+fig     <- function(name) here("results/figures", name)
 ```
+
+## Summary
+
+Amlodipine (5 µM, 48 h) produces a strong, reproducible transcriptional response in AGS
+gastric cancer cells. Treatment is the dominant source of variation between samples, and
+`r n_up + n_down` genes pass the significance thresholds. The response is dominated by
+activation of p53 target genes and suppression of cell-cycle programmes, alongside increased
+expression of mitochondrial energy metabolism genes. TKT, which the original study proposed
+as a mediator of amlodipine's effects, is modestly lower at the mRNA level but does not reach
+significance. The transcriptome alone therefore neither confirms nor rules out a TKT-centred
+mechanism.
 
 ## Background
 
 AGS gastric adenocarcinoma cells were treated with 5 µM amlodipine or DMSO vehicle for
 48 h, with three biological replicates per group
 ([GSE348880](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE348880)). The original
-study proposed that amlodipine acts through altered pentose phosphate pathway (PPP)
-activity mediated by transketolase (TKT). This report reanalyses the raw data to test that
-at the transcript level.
+study proposed that amlodipine's anti-tumour effect involves altered pentose phosphate pathway
+(PPP) activity mediated by transketolase (TKT). This report reanalyses the raw sequencing data
+to see what the transcriptome shows, both genome-wide and for the PPP specifically.
+
+## Methods in brief
+
+Reads were downloaded from SRA, checked with FastQC and MultiQC, and quantified with Salmon
+against the GENCODE release 50 human transcriptome. Transcript estimates were summarised to
+genes with tximport. Structural RNA biotypes (rRNA, snRNA, snoRNA and others) and low-count
+genes were removed before differential expression analysis with DESeq2 (design `~ condition`),
+with apeglm fold-change shrinkage. Genes with padj < 0.05 and |log2FC| > 1 were called
+differentially expressed. Pathway analysis used GO over-representation (all tested genes as
+background) and GSEA on the DESeq2 Wald statistic against GO Biological Process, MSigDB
+Hallmark, and two custom PPP gene sets. The full workflow is available on
+[GitHub](https://github.com/SometimesJade/rna-seq-pipeline).
 
 ## Sample quality
 
@@ -41,7 +66,16 @@ at the transcript level.
 include_graphics(fig("01_pca.png"))
 ```
 
-<!-- 1–2 sentences: treatment drives PC1, replicates cluster by group. -->
+Principal component analysis of variance-stabilised counts separates the samples by
+treatment along PC1, which explains 83% of the variance. Hierarchical
+clustering of sample-to-sample distances gives the same split, with each condition forming
+its own branch. The amlodipine replicates are more spread out along PC2, with SRR40892064 the
+most distinct, but no sample stands apart enough to suggest an outlier or a
+sample swap.
+
+```{r}
+include_graphics(fig("02_sample_distances.png"))
+```
 
 ## Differential expression
 
@@ -58,7 +92,14 @@ top <- head(de[de$diffexpressed != "Not Significant",
 kable(top, digits = 3, row.names = FALSE, caption = "Top 10 DE genes by adjusted p-value")
 ```
 
+Among the most significant changes are several stress-responsive genes, including the small
+heat-shock protein CRYAB, the stress keratin KRT16 and the interferon-stimulated gene ISG15 .
+
 ## Pathways
+
+```{r}
+include_graphics(fig("08_GSEA_Hallmark.png"))
+```
 
 ```{r}
 h <- hallmark[order(hallmark$NES), c("ID", "setSize", "NES", "p.adjust")]
@@ -66,25 +107,57 @@ h$ID <- sub("HALLMARK_", "", h$ID)
 kable(h, digits = 3, row.names = FALSE, caption = "Significant Hallmark gene sets")
 ```
 
-<!-- Interpretation: p53 activation, G2M/E2F suppression, OXPHOS. -->
+The Hallmark results point to two connected themes. The first is a p53 response: the p53
+pathway, DNA repair and UV response gene sets are activated, and canonical p53 targets such
+as CDKN1A (p21), MDM2, GDF15 and BAX are expressed more highly after treatment. AGS cells
+carry wild-type TP53, so an intact p53 response is plausible. The second is reduced
+proliferation: the G2/M checkpoint and E2F target sets are the most strongly suppressed, and
+mitotic genes such as CCNB1 and PLK1 are lower. Together with p21 induction, this pattern is
+consistent with p53-associated cell-cycle arrest.
+
+A third, separate signal is increased expression of mitochondrial energy metabolism genes.
+Oxidative phosphorylation and reactive oxygen species pathway gene sets are activated, and GO
+over-representation among upregulated genes is dominated by ATP synthesis and mitochondrial
+organisation terms. Expression data alone cannot tell whether this reflects metabolic
+adaptation or a stress response.
 
 ## Does the data support a TKT-mediated PPP effect?
 
-TKT is expressed at high levels (baseMean `r round(tkt$baseMean)`) and is modestly lower
-after treatment (log2FC `r round(tkt$log2FoldChange, 2)`, padj `r signif(tkt$padj, 2)`).
+TKT is highly expressed (baseMean `r round(tkt$baseMean)`) and modestly lower after
+treatment (log2FC `r round(tkt$log2FoldChange, 2)`, nominal p = `r signif(tkt$pvalue, 2)`,
+padj = `r signif(tkt$padj, 2)`). It does not pass the significance thresholds used here.
 
 ```{r}
 kable(ppp[, c("ID", "setSize", "NES", "pvalue", "core_enrichment")],
       digits = 3, row.names = FALSE, caption = "GSEA for PPP branches")
 ```
 
+The non-oxidative PPP branch trends downward (NES `r round(ppp_non$NES, 2)`,
+p = `r signif(ppp_non$pvalue, 2)`), with TKT among the leading-edge genes, while the
+oxidative branch shows no consistent change (NES `r round(ppp_ox$NES, 2)`,
+p = `r signif(ppp_ox$pvalue, 2)`). Neither gene set is significant, and with only four genes
+per set after filtering, GSEA has little power to detect modest shifts.
+
 ```{r}
 include_graphics(fig("05_genes_of_interest_heatmap.png"))
 ```
 
-<!-- Your conclusion: directionally consistent, not significant, protein-level evidence
-     may differ. -->
+At the transcript level, the data are directionally consistent with reduced non-oxidative
+PPP activity, but they do not establish it. This does not contradict the original study:
+changes in transketolase could act through protein abundance, enzyme activity or metabolic
+flux, none of which RNA-seq measures. Since the PPP is a major source of NADPH for antioxidant
+defence, its relationship to the activated ROS pathway signature would be worth following up.
+Testing the TKT hypothesis directly would require protein or metabolic data, such as TKT
+immunoblotting or ¹³C-glucose tracing.
 
 ## Limitations
 
-<!-- n = 3 per group; single cell line and time point; mRNA only; library prep inferred. -->
+- Three replicates per group give limited power for modest effects such as the TKT change.
+- A single cell line, dose and time point were profiled, so dose–response and timing effects
+  cannot be assessed.
+- RNA-seq measures transcript levels only; protein abundance, enzyme activity and metabolic
+  flux are not captured.
+- The library preparation is not stated in GEO. Poly-A selection was inferred from the
+  absence of non-polyadenylated histone mRNAs.
+- Processing differs from the original authors' pipeline, so gene-level results may not
+  match theirs exactly.
