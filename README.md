@@ -1,4 +1,6 @@
 # RNA-seq pipeline: amlodipine in AGS gastric cancer cells
+![CI](https://github.com/SometimesJade/rna-seq-pipeline/actions/workflows/ci.yml/badge.svg)
+
 
 A Snakemake workflow that reanalyses public RNA-seq data on the effect of the calcium
 channel blocker amlodipine in AGS human gastric adenocarcinoma cells. It takes paired-end
@@ -21,9 +23,6 @@ Treatment is the dominant source of variation (PC1, 83% of variance), and sample
 cleanly by condition.
 
 <img src="results/figures/01_pca.png" width="600">
-
-![CI](https://github.com/SometimesJade/rna-seq-pipeline/actions/workflows/ci.yml/badge.svg)
-
 
 In this reanalysis, TKT mRNA is modestly lower after amlodipine treatment (log2FC −0.55,
 nominal p = 0.048, padj = 0.13), and the non-oxidative PPP gene set trends downward with
