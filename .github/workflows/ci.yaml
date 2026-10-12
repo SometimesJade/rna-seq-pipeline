@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge,bioconda
+          channel-priority: strict
+          activate-environment: snakemake
+
+      - name: Install Snakemake
+        run: conda install -y snakemake-minimal=9.27.0
+
+      - name: Lint
+        run: snakemake --lint
+
+      - name: Dry run
+        run: snakemake --use-conda --cores 1 -n
