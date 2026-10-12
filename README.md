@@ -15,6 +15,8 @@ The GEO record does not state the library preparation. The data are consistent w
 selection: replication-dependent histone mRNAs, which lack poly-A tails, are not detected
 above the low-count filter.
 
+ **[Read the full report](https://sometimesjade.github.io/rna-seq-pipeline/)**
+
 ## Results at a glance
 
 Treatment is the dominant source of variation (PC1, 83% of variance), and samples cluster

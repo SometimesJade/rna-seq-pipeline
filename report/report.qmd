@@ -1,0 +1,90 @@
+---
+title: "Amlodipine in AGS gastric cancer cells: an RNA-seq reanalysis"
+author: "Sophie Toussaint"
+date: today
+format:
+  html:
+    toc: true
+    embed-resources: true
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(here)
+library(knitr)
+
+de       <- read.csv(here("results/tables/DE_amlodipine_vs_control.csv"))
+hallmark <- read.csv(here("results/tables/GSEA_Hallmark.csv"))
+ppp      <- read.csv(here("results/tables/GSEA_PPP_branches.csv"))
+
+n_up   <- sum(de$diffexpressed == "Upregulated")
+n_down <- sum(de$diffexpressed == "Downregulated")
+tkt    <- de[which(de$symbol == "TKT"), ]
+fig    <- function(name) here("results/figures", name)
+```
+
+## Background
+
+AGS gastric adenocarcinoma cells were treated with 5 µM amlodipine or DMSO vehicle for
+48 h, with three biological replicates per group
+([GSE348880](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE348880)). The original
+study proposed that amlodipine acts through altered pentose phosphate pathway (PPP)
+activity mediated by transketolase (TKT). This report reanalyses the raw data to test that
+at the transcript level.
+
+## Sample quality
+
+```{r}
+include_graphics(fig("01_pca.png"))
+```
+
+<!-- 1–2 sentences: treatment drives PC1, replicates cluster by group. -->
+
+## Differential expression
+
+At padj < 0.05 and |log2FC| > 1, `r n_up` genes are upregulated and `r n_down` are
+downregulated.
+
+```{r}
+include_graphics(fig("04_volcano.png"))
+```
+
+```{r}
+top <- head(de[de$diffexpressed != "Not Significant",
+               c("symbol", "baseMean", "log2FoldChange", "padj")], 10)
+kable(top, digits = 3, row.names = FALSE, caption = "Top 10 DE genes by adjusted p-value")
+```
+
+## Pathways
+
+```{r}
+h <- hallmark[order(hallmark$NES), c("ID", "setSize", "NES", "p.adjust")]
+h$ID <- sub("HALLMARK_", "", h$ID)
+kable(h, digits = 3, row.names = FALSE, caption = "Significant Hallmark gene sets")
+```
+
+<!-- Interpretation: p53 activation, G2M/E2F suppression, OXPHOS. -->
+
+## Does the data support a TKT-mediated PPP effect?
+
+TKT is expressed at high levels (baseMean `r round(tkt$baseMean)`) and is modestly lower
+after treatment (log2FC `r round(tkt$log2FoldChange, 2)`, padj `r signif(tkt$padj, 2)`).
+
+```{r}
+kable(ppp[, c("ID", "setSize", "NES", "pvalue", "core_enrichment")],
+      digits = 3, row.names = FALSE, caption = "GSEA for PPP branches")
+```
+
+```{r}
+include_graphics(fig("05_genes_of_interest_heatmap.png"))
+```
+
+<!-- Your conclusion: directionally consistent, not significant, protein-level evidence
+     may differ. -->
+
+## Limitations
+
+<!-- n = 3 per group; single cell line and time point; mRNA only; library prep inferred. -->

@@ -5,3 +5,5 @@ raw_data
 ref
 logs
 .snakemake/
+.quarto/
+report/*_files/
