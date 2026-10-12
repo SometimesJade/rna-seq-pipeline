@@ -1,0 +1,3 @@
+"ID","Description","setSize","enrichmentScore","NES","pvalue","p.adjust","qvalue","rank","leading_edge","core_enrichment"
+"PPP_nonoxidative","PPP_nonoxidative",4,-0.629544999507978,-1.20580074504298,0.280952380952381,0.441580756013746,0.441580756013746,3732,"tags=75%, list=28%, signal=54%","RPE/TKT/RPIA"
+"PPP_oxidative","PPP_oxidative",4,0.573039394637423,1.05752854410064,0.441580756013746,0.441580756013746,0.441580756013746,444,"tags=25%, list=3%, signal=24%","PGLS"

@@ -1,0 +1,13 @@
+channels: [conda-forge, bioconda]
+dependencies:
+  - r-base
+  - r-here
+  - r-ggplot2
+  - r-ggrepel
+  - r-pheatmap
+  - bioconductor-tximport
+  - bioconductor-deseq2
+  - bioconductor-apeglm
+  - bioconductor-clusterprofiler
+  - bioconductor-enrichplot
+  - bioconductor-org.hs.eg.db
