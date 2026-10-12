@@ -29,7 +29,7 @@ p_pca <- ggplot(pca, aes(PC1, PC2, color = condition)) +
        color = "Treatment", title = "PCA: Amlodipine vs Control") +
   coord_fixed() +
   theme_bw()
-save_plot(p_pca, "01_pca")
+save_plot(p_pca, "01_pca", w = 8, h = 3.5)
 
 #Sample-to-sample distances
 d <- dist(t(assay(vsd)))

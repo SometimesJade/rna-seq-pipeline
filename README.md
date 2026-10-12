@@ -20,7 +20,7 @@ above the low-count filter.
 Treatment is the dominant source of variation (PC1, 83% of variance), and samples cluster
 cleanly by condition.
 
-![PCA](results/figures/01_pca.png)
+<img src="results/figures/01_pca.png" width="600">
 
 In this reanalysis, TKT mRNA is modestly lower after amlodipine treatment (log2FC −0.55,
 nominal p = 0.048, padj = 0.13), and the non-oxidative PPP gene set trends downward with
@@ -30,7 +30,7 @@ reduced non-oxidative PPP activity but do not establish it. The original study's
 findings may rest on protein- or activity-level evidence not captured by RNA-seq.
 At padj < 0.05 and |log2FC| > 1, there are **1977 upregulated** and **1003 downregulated** genes.
 
-![Volcano plot](results/figures/04_volcano.png)
+<img src="results/figures/04_volcano.png" width="600">
 
 Pathway analysis points to p53 activation (CDKN1A, MDM2, GDF15, BAX up) together with
 suppression of G2/M checkpoint and E2F target genes, consistent with cell-cycle arrest.
@@ -41,7 +41,7 @@ For comparison with the original study, the PPP genes are shown in the heatmap b
 Gene-set results for the oxidative and non-oxidative PPP branches are in
 `results/tables/GSEA_PPP_branches.csv`.
 
-![Genes of interest](results/figures/05_genes_of_interest_heatmap.png)
+<img src="results/figures/05_genes_of_interest_heatmap.png" width="600">
 
 ## Workflow
 

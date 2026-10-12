@@ -1,3 +1,7 @@
 .venv
 .idea
 quants
+raw_data
+ref
+logs
+.snakemake/

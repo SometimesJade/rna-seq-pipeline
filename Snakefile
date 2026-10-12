@@ -47,7 +47,7 @@ rule download_transcriptome:
     params: url = TX_URL
     log: "logs/download_transcriptome.log"
     shell:
-        "curl -L -o {output} {params.url} > {log} 2>&1"
+        "curl -L -o -f {output} {params.url} > {log} 2>&1"
 
 
 rule salmon_index:
