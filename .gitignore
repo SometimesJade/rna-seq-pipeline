@@ -7,3 +7,4 @@ logs
 .snakemake/
 .quarto/
 report/*_files/
+report/report.html
