@@ -1,5 +1,6 @@
 # Snakefile: RNA-seq pipeline from SRA accessions to DE and enrichment results
 import csv
+import os
 
 with open("metadata/samples.csv") as f:
     SAMPLES = [row["sample"] for row in csv.DictReader(f)]
@@ -70,7 +71,7 @@ rule salmon_quant:
     output:
         "quants/{sample}_quant/quant.sf"
     params:
-        outdir = "quants/{sample}_quant"
+        outdir=lambda w, output: os.path.dirname(output[0])
     threads: 4
     log: "logs/salmon/{sample}.log"
     conda: "envs/salmon.yaml"
