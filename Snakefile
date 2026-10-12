@@ -1,8 +1,9 @@
 # Snakefile: RNA-seq pipeline from SRA accessions to DE and enrichment results
-import pandas as pd
+import csv
 
-SAMPLES = pd.read_csv("metadata/samples.csv")["sample"].tolist()
-
+with open("metadata/samples.csv") as f:
+    SAMPLES = [row["sample"] for row in csv.DictReader(f)]
+    
 GENCODE_RELEASE = "50"
 TX_URL = (f"https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/"
           f"release_{GENCODE_RELEASE}/gencode.v{GENCODE_RELEASE}.transcripts.fa.gz")
