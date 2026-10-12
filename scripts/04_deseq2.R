@@ -37,12 +37,18 @@ dds <- dds[!rownames(dds) %in% structural_genes, ]
 message("Removed ", sum(rownames(txi$counts) %in% structural_genes), " structural RNA genes")
 
 #Import and build DESeq2 object
-txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+txi <- tximport(files, type = "salmon", tx2gene = tx2gene[, c("TXNAME", "GENEID")])
 dds <- DESeqDataSetFromTximport(txi, colData = samples, design = ~ condition)
+
+structural_genes <- unique(tx2gene$GENEID[tx2gene$TXTYPE %in% structural_types])
+n_struct <- sum(rownames(dds) %in% structural_genes)
+dds <- dds[!rownames(dds) %in% structural_genes, ]
+message("Removed ", n_struct, " structural RNA genes")
+
 
 # Pre-filter low-count genes
 keep <- rowSums(counts(dds) >= min_count) >= min_samples
-dds  <- dds[keep, ]
+dds <- dds[keep, ]
 message("Genes kept after filtering: ", sum(keep), " of ", length(keep))
 
 #Differential expression

@@ -94,8 +94,11 @@ rule multiqc:
 
 rule r_analysis:
     input:
-        quants = expand("quants/{sample}_quant/quant.sf", sample=SAMPLES),
-        samples = "metadata/samples.csv"
+        quants=expand("quants/{sample}_quant/quant.sf",sample=SAMPLES),
+        samples="metadata/samples.csv",
+        scripts=expand("scripts/{s}",s=["config.R", "04_deseq2.R",
+                                        "05_qc_plots.R",
+                                        "06_enrichment.R", "run_all.R"])
     output:
         "results/tables/DE_amlodipine_vs_control.csv",
         "results/sessionInfo.txt"
