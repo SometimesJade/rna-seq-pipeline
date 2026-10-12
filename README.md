@@ -22,6 +22,8 @@ cleanly by condition.
 
 <img src="results/figures/01_pca.png" width="600">
 
+![CI](https://github.com/SometimesJade/rna-seq-pipeline/actions/workflows/ci.yml/badge.svg)
+
 In this reanalysis, TKT mRNA is modestly lower after amlodipine treatment (log2FC −0.55,
 nominal p = 0.048, padj = 0.13), and the non-oxidative PPP gene set trends downward with
 TKT in its leading edge (NES −1.19, p = 0.29). Neither result passes the significance
